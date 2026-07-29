@@ -1,38 +1,37 @@
-# Puma can serve each request in a thread from an internal thread pool.
-# The `threads` method setting takes two numbers: a minimum and maximum.
-# Any libraries that use thread pools should be configured to match
-# the maximum value specified for Puma. Default is set to 5 threads for minimum
-# and maximum; this matches the default thread size of Active Record.
-#
-max_threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
-min_threads_count = ENV.fetch("RAILS_MIN_THREADS") { max_threads_count }
-threads min_threads_count, max_threads_count
+# Puma serves each worker with a thread pool. The default of three is modest
+# for small EC2 instances and can be changed without editing this file.
+max_threads = Integer(ENV.fetch("RAILS_MAX_THREADS", 3))
+min_threads = Integer(ENV.fetch("RAILS_MIN_THREADS", max_threads))
+workers_count = Integer(ENV.fetch("WEB_CONCURRENCY", 1))
 
-# Specifies the `port` that Puma will listen on to receive requests; default is 3000.
-#
-port        ENV.fetch("PORT") { 3000 }
+raise "RAILS_MIN_THREADS must not exceed RAILS_MAX_THREADS" if min_threads > max_threads
+raise "WEB_CONCURRENCY must be at least 1" if workers_count < 1
 
-# Specifies the `environment` that Puma will run in.
-#
-environment ENV.fetch("RAILS_ENV") { "development" }
+threads min_threads, max_threads
+workers workers_count if workers_count > 1
 
-# Specifies the `pidfile` that Puma will use.
-pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }
+environment ENV.fetch("RAILS_ENV", ENV.fetch("RACK_ENV", "development"))
 
-# Specifies the number of `workers` to boot in clustered mode.
-# Workers are forked web server processes. If using threads and workers together
-# the concurrency of the application would be max `threads` * `workers`.
-# Workers do not work on JRuby or Windows (both of which do not support
-# processes).
-#
-# workers ENV.fetch("WEB_CONCURRENCY") { 2 }
+# Local development defaults to loopback TCP. The systemd unit overrides this
+# with the Unix socket shared with Nginx. PORT remains available for local use.
+bind ENV.fetch("PUMA_BIND", "tcp://127.0.0.1:#{ENV.fetch('PORT', 3000)}")
 
-# Use the `preload_app!` method when specifying a `workers` number.
-# This directive tells Puma to first boot the application and load code
-# before forking the application. This takes advantage of Copy On Write
-# process behavior so workers use less memory.
-#
-# preload_app!
+pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
+state_path ENV.fetch("PUMA_STATE_PATH", "tmp/pids/puma.state")
 
-# Allow puma to be restarted by `rails restart` command.
+# Preloading is opt-in because EC2 memory sizes vary. When enabled for multiple
+# workers, discard inherited database connections and reconnect after forking.
+if workers_count > 1 && ENV["PUMA_PRELOAD_APP"] == "true"
+  preload_app!
+
+  before_fork do
+    ActiveRecord::Base.connection_handler.clear_all_connections! if defined?(ActiveRecord::Base)
+  end
+
+  before_worker_boot do
+    ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+  end
+end
+
+# Allow Puma to be restarted by `bin/rails restart`.
 plugin :tmp_restart

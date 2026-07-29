@@ -1,0 +1,35 @@
+[Unit]
+Description=Blog App Puma application server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+NotifyAccess=all
+User=deploy
+Group=deploy
+WorkingDirectory=/var/www/blog_app/current
+Environment=RAILS_ENV=production
+Environment=RACK_ENV=production
+Environment="PUMA_BIND=unix:///var/www/blog_app/shared/tmp/sockets/puma.sock?umask=0007"
+Environment=PIDFILE=/var/www/blog_app/shared/tmp/pids/puma.pid
+Environment=PUMA_STATE_PATH=/var/www/blog_app/shared/tmp/pids/puma.state
+EnvironmentFile=-/etc/blog_app/environment
+UMask=0007
+ExecStartPre=/usr/bin/install -d -m 0750 /var/www/blog_app/shared/tmp/pids
+ExecStartPre=/usr/bin/install -d -m 0770 /var/www/blog_app/shared/tmp/sockets
+ExecStart=/usr/bin/bash -lc "exec bundle exec puma -C config/puma.rb"
+ExecReload=/bin/kill -USR2 $MAINPID
+Restart=on-failure
+RestartSec=5
+PIDFile=/var/www/blog_app/shared/tmp/pids/puma.pid
+TimeoutStopSec=30
+KillSignal=SIGTERM
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blog-app-puma
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
