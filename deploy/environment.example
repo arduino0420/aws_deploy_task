@@ -1,0 +1,6 @@
+# Copy this file to /etc/blog_app/environment and keep the real file off Git.
+RAILS_LOG_LEVEL=info
+RAILS_MAX_THREADS=3
+RAILS_MIN_THREADS=3
+WEB_CONCURRENCY=1
+PUMA_PRELOAD_APP=false

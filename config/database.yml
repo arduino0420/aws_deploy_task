@@ -17,9 +17,16 @@
 default: &default
   adapter: postgresql
   encoding: unicode
+  host: <%= ENV["POSTGRES_HOST"] %>
+  port: <%= ENV.fetch("POSTGRES_PORT", 5432) %>
+  username: <%= ENV["POSTGRES_USER"] %>
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # Each Puma worker owns a separate pool. Keep the per-worker default equal
+  # to Puma's maximum thread count; DB_POOL may be raised explicitly when
+  # background work in the web process requires additional connections.
+  max_connections: <%= ENV.fetch("DB_POOL") { ENV.fetch("RAILS_MAX_THREADS", 3) } %>
 
 development:
   <<: *default
@@ -81,5 +88,5 @@ test:
 production:
   <<: *default
   database: blog_app_production
-  username: blog_app
-  password: <%= ENV['BLOG_APP_DATABASE_PASSWORD'] %>
+  username: <%= ENV.fetch("POSTGRES_USER", "blog_app") %>
+  password: <%= ENV["BLOG_APP_DATABASE_PASSWORD"] || ENV["POSTGRES_PASSWORD"] %>
