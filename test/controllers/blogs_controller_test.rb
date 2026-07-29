@@ -7,7 +7,9 @@ class BlogsControllerTest < ActionDispatch::IntegrationTest
 
   test "should get index" do
     get blogs_url
+
     assert_response :success
+    assert_select "img", count: 0
   end
 
   test "should get new" do
@@ -23,9 +25,13 @@ class BlogsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to blog_url(Blog.last)
   end
 
-  test "should show blog" do
+  test "should show blog without a thumbnail" do
+    assert_not @blog.thumbnail.attached?
+
     get blog_url(@blog)
+
     assert_response :success
+    assert_select "img", count: 0
   end
 
   test "should get edit" do

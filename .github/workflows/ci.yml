@@ -62,3 +62,6 @@ jobs:
 
       - name: Run Rails tests
         run: bundle exec rails test
+
+      - name: Run browser system tests
+        run: bundle exec rails test:system

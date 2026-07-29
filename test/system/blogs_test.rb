@@ -10,6 +10,15 @@ class BlogsTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Blogs"
   end
 
+  test "visiting a blog without a thumbnail" do
+    assert_not @blog.thumbnail.attached?
+
+    visit blog_url(@blog)
+
+    assert_text @blog.title
+    assert_no_selector "img"
+  end
+
   test "creating a Blog" do
     visit blogs_url
     click_on "New Blog"

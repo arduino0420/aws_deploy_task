@@ -30,7 +30,10 @@ yarn install --frozen-lockfile
 bundle exec rails db:prepare
 bundle exec rails zeitwerk:check
 bundle exec rails test
+bundle exec rails test:system
 ```
+
+`rails test` はモデル、controller/integration、health check、およびPuma・Nginx・systemd・DB poolの配備設定整合性を検証します。`rails test:system` はheadless ChromeでBlogの作成・表示・更新・削除をブラウザ操作します。
 
 開発サーバーは外部公開せず、既定で `127.0.0.1:3000` にbindします。
 
