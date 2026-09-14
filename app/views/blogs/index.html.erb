@@ -17,7 +17,7 @@
       <tr>
         <td><%= blog.title %></td>
         <td><%= blog.content %></td>
-        <td><%= image_tag blog.thumbnail.variant(resize_to_limit: [200, 200]) if blog.thumbnail.attached? %></td>
+        <td><%= image_tag blog.thumbnail, size: "200x200" if blog.thumbnail.attached? %></td>
         <td><%= link_to 'Show', blog %></td>
         <td><%= link_to 'Edit', edit_blog_path(blog) %></td>
         <td><%= link_to 'Destroy', blog, method: :delete, data: { confirm: 'Are you sure?' } %></td>
