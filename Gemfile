@@ -53,3 +53,5 @@ gem "capistrano", "~> 3.20", group: :development
 gem "capistrano-rails", "~> 1.7", group: :development
 gem "capistrano-rbenv", "~> 2.2", group: :development
 gem "capistrano3-puma", "~> 8.1", group: :development
+
+gem "aws-sdk-s3", "~> 1.232"
