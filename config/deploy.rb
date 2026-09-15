@@ -20,9 +20,13 @@ set :rbenv_ruby, "4.0.5"
 # 本番ではdevelopment/test用Gemを入れない
 set :bundle_without, %w[development test].join(" ")
 
-# Webpacker 5とNode.jsのOpenSSL互換対策
+# CapistranoがEC2でコマンドを実行するときに渡す環境変数
 set :default_env, {
-  "NODE_OPTIONS" => "--openssl-legacy-provider"
+  "NODE_OPTIONS" => "--openssl-legacy-provider",
+  "POSTGRES_HOST" => ENV.fetch("POSTGRES_HOST"),
+  "POSTGRES_USER" => ENV.fetch("POSTGRES_USER"),
+  "BLOG_APP_DATABASE_PASSWORD" => ENV.fetch("BLOG_APP_DATABASE_PASSWORD"),
+  "SECRET_KEY_BASE" => ENV.fetch("SECRET_KEY_BASE")
 }
 
 # デプロイ履歴を3世代残す
