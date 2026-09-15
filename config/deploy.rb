@@ -29,6 +29,13 @@ set :default_env, {
   "SECRET_KEY_BASE" => ENV.fetch("SECRET_KEY_BASE")
 }
 
+set :puma_service_unit_env_vars, [
+  "POSTGRES_HOST=#{ENV.fetch("POSTGRES_HOST")}",
+  "POSTGRES_USER=#{ENV.fetch("POSTGRES_USER")}",
+  "BLOG_APP_DATABASE_PASSWORD=#{ENV.fetch("BLOG_APP_DATABASE_PASSWORD")}",
+  "SECRET_KEY_BASE=#{ENV.fetch("SECRET_KEY_BASE")}"
+]
+
 # デプロイ履歴を3世代残す
 set :keep_releases, 3
 
